@@ -1,4 +1,4 @@
-//#include<GL/glew.h>
+
 #include <glad\glad.h>
 #include <GLFW/glfw3.h>
 
@@ -21,8 +21,8 @@
 #include "glm\gtc\matrix_transform.hpp"
 #include "glm\gtc\type_ptr.hpp"
 
-#include "imgui\imgui.h"
-#include "imgui\imgui_impl_glfw_gl3.h"
+//#include "imgui\imgui.h"
+//#include "imgui\imgui_impl_glfw_gl3.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -42,6 +42,12 @@ bool firstMouse = true;
 // timing
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
+
+// lighting
+
+glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+glm::vec3 lightPos1(1.2f, 1.0f, 2.0f);
+
 
 
 int main(void)
@@ -92,86 +98,71 @@ int main(void)
 	};*/
 
 	float positions[] = {
-	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
 
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-	-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
 
-	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
 
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
 
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
 
-	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
 	};
 
-	glm::vec3 cubePositions[] = {
-		glm::vec3(0.0f,  0.0f,  0.0f),
-		glm::vec3(2.0f,  5.0f, -15.0f),
-		glm::vec3(-1.5f, -2.2f, -2.5f),
-		glm::vec3(-3.8f, -2.0f, -12.3f),
-		glm::vec3(2.4f, -0.4f, -3.5f),
-		glm::vec3(-1.7f,  3.0f, -7.5f),
-		glm::vec3(1.3f, -2.0f, -2.5f),
-		glm::vec3(1.5f,  2.0f, -2.5f),
-		glm::vec3(1.5f,  0.2f, -1.5f),
-		glm::vec3(-1.3f,  1.0f, -1.5f)
-	};
-
-	unsigned int indices[] = {
-		0,1,2,
-		2,3,0
-	};
 
 	GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 	GLCall(glEnable(GL_BLEND));
 
 	VertexArray va;
-	VertexBuffer vb(positions, 5 * 6 * 6 * sizeof(float));
+	VertexBuffer vb(positions, 6 * 6 * 6 * sizeof(float));
 
 	VertexBufferLayout layout;
 	layout.Push<float>(3);
-	layout.Push<float>(2);
+	layout.Push<float>(3);
 	va.AddBuffer(vb,layout);
 
 
-	IndexBuffer ib(indices, 6); 
+	//IndexBuffer ib(indices, 6); 
 
 	
 
 	Shader shader("res/shaders/Basic.shader");
 	shader.Bind();
-	shader.SetUniform4f("u_Color", 0.2f, 0.3f, 0.8f, 1.0f);
+	//shader.SetUniform4f("u_Color", 0.2f, 0.3f, 0.8f, 1.0f);
+
+	Shader shader1("res/shaders/Lighting.shader");
 	
 	Texture texture("res/textures/awesomeface.png",0);
 	texture.Bind(1);
@@ -184,20 +175,20 @@ int main(void)
 
 	va.Unbind();
 	vb.Unbind();
-	ib.Unbind();
+	//ib.Unbind();
 	shader.Unbind();
 
 	Renderer renderer;
 
-	ImGui::CreateContext();
-	ImGui_ImplGlfwGL3_Init(window, true);
-	ImGui::StyleColorsDark();
+	//ImGui::CreateContext();
+	//ImGui_ImplGlfwGL3_Init(window, true);
+	//ImGui::StyleColorsDark();
 
 	//glm::vec3 translation(200, 200, 0);
 	float mul = 2.0;
 	float r = 0.1f, g = 0.9f, b = 0.5f;
 	float increment = 0.01f;
-	//glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+	
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
 	{
@@ -212,44 +203,55 @@ int main(void)
 		// -----
 		processInput(window);
 
-		//GLCall(glClearColor(0.3f, 0.4f, 0.5f, 1.0f));
+		GLCall(glClearColor(0.1f, 0.1f, 0.1f, 1.0f));
 		renderer.Clear();
 		renderer.DepthEnable();
 
-		ImGui_ImplGlfwGL3_NewFrame();
+		//ImGui_ImplGlfwGL3_NewFrame();
 
 		
-		glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
-		//glm::mat4 view = glm::mat4(1.0f);
-		glm::mat4 projection = glm::mat4(1.0f);
-		model = glm::rotate(model, mul*(float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
-		//view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-		projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+		// view/projection transformations
+		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 		glm::mat4 view = camera.GetViewMatrix();
+		// world transformation
+		glm::mat4 model = glm::mat4(1.0f);
+
+		
+
 
 		shader.Bind();
-		shader.SetUniform4f("u_Color", r, g, b, 1.0f);
+		shader.SetUniform3f("objectColor", 1.0f, 0.5f, 0.31f);
+		shader.SetUniform3f("lightColor", 1.0f, 1.0f, 1.0f);
+		shader.SetUniform3f("lightPos", lightPos);
+		
+		shader.SetUniform3f("viewPos", camera.Position);
 
-	
-		shader.SetUniformMat4f("u_Model", model);
-		shader.SetUniformMat4f("u_View", view);
-		shader.SetUniformMat4f("u_Projection",projection);
+		shader.SetUniformMat4f("model", model);
+		shader.SetUniformMat4f("view", view);
+		shader.SetUniformMat4f("projection",projection);
 		//shader.SetUniformMat4f("u_MVP", mvp);
 		
-		for (unsigned int i = 0; i < 10; i++)
-		{
-			glm::mat4 model = glm::mat4(1.0f);
-			model = glm::translate(model, cubePositions[i]);
-			float angle = 25.0f * (i+2) * (float)glfwGetTime();
-			model = glm::rotate(model, glm::radians(angle), glm::vec3(mul, 0.3f, 0.5f));
-			shader.SetUniformMat4f("u_Model", model);
-
-			renderer.DrawArray(va, shader, 36);
-		}
-		
+		renderer.DrawArray(va, shader, 36);
 		
 
+
+
+		shader1.Bind();
+
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, lightPos);
+		model = glm::scale(model, glm::vec3(0.2f));
+		shader1.SetUniformMat4f("u_Model", model);
+		shader1.SetUniformMat4f("u_View", view);
+		shader1.SetUniformMat4f("u_Projection", projection);
 		
+		renderer.DrawArray(va, shader1, 36);
+
+		
+		lightPos.x = sin(1.5 * glfwGetTime()) * 2.0f;
+		lightPos.z = cos(1.5 * glfwGetTime()) * 2.0f;
+		lightPos.y = 0;
+
 
 		if (r > 1.0f)
 		{
@@ -261,17 +263,17 @@ int main(void)
 		r += increment;
 		g -= increment;
 		b += increment;
-		glClearColor(r, g, b, 1.0f);
+		//glClearColor(r, g, b, 1.0f);
 
-		{
+		//{
 
-			ImGui::SliderFloat("Multiplier", &mul, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f    
-			
-			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-		}
+		//	ImGui::SliderFloat("Multiplier", &mul, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f    
+		//	
+		//	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		//}
 
-		ImGui::Render();
-		ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
+		//ImGui::Render();
+		//ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
 
 		/* Swap front and back buffers */
 		GLCall(glfwSwapBuffers(window));
@@ -281,8 +283,8 @@ int main(void)
 	}
 	
   }
-	ImGui_ImplGlfwGL3_Shutdown();
-	ImGui::DestroyContext();
+	//ImGui_ImplGlfwGL3_Shutdown();
+	//ImGui::DestroyContext();
 
 	glfwTerminate();
 	return 0;
@@ -313,6 +315,8 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	// height will be significantly larger than specified on retina displays.
 	glViewport(0, 0, width, height);
 }
+
+
 
 // glfw: whenever the mouse moves, this callback is called
 // -------------------------------------------------------

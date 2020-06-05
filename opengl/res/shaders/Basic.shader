@@ -1,39 +1,56 @@
 #shader vertex
 #version 330 core
+layout(location = 0) in vec3 aPos;
+layout(location = 1) in vec3 aNormal;
 
-layout(location = 0) in vec4 position;
-layout(location = 1) in vec2 texCoord;
+out vec3 FragPos;
+out vec3 Normal;
 
-out vec2 v_TexCoord;
-
-uniform mat4 u_Model;
-uniform mat4 u_View;
-uniform mat4 u_Projection;
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
 
 void main()
 {
-	gl_Position= u_Projection * u_View * u_Model * position;
-	//gl_Position = transform *position;
-	v_TexCoord = texCoord;
-};
+	FragPos = vec3(model * vec4(aPos, 1.0));
+	Normal = mat3(transpose(inverse(model))) * aNormal;
+
+	gl_Position = projection * view * vec4(FragPos, 1.0);
+}
 
 
 #shader fragment
 #version 330 core
+out vec4 FragColor;
 
-layout(location=0 ) out vec4 color;
+in vec3 Normal;
+in vec3 FragPos;
 
-in vec2 v_TexCoord;
+uniform vec3 lightPos;
 
-uniform vec4 u_Color;
-uniform sampler2D u_Texture;
-uniform sampler2D u_Texture1;
+uniform vec3 viewPos;
+uniform vec3 lightColor;
+uniform vec3 objectColor;
 
 void main()
 {
-	//vec4 texColor = texture(u_Texture, v_TexCoord);
-	
-	color = mix(texture(u_Texture, v_TexCoord), texture(u_Texture1, v_TexCoord), 0.8);
-	//color = texColor*u_Color;
-	//color = u_Color;
-};
+	// ambient
+	float ambientStrength = 0.1;
+	vec3 ambient = ambientStrength * lightColor;
+
+	// diffuse 
+	vec3 norm = normalize(Normal);
+	vec3 lightDir = normalize((lightPos ) - FragPos);
+	float diff = max(dot(norm, lightDir), 0.05);
+	vec3 diffuse = diff * lightColor;
+
+	// specular
+	float specularStrength = 0.5;
+	vec3 viewDir = normalize(viewPos - FragPos);
+	vec3 reflectDir = reflect(-lightDir, norm);
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+	vec3 specular = specularStrength * spec * lightColor;
+
+	vec3 result = (ambient + diffuse + specular) * objectColor;
+	FragColor = vec4(result, 1.0);
+}

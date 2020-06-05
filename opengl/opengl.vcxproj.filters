@@ -424,6 +424,7 @@
     <None Include="src\vendor\glm\gtx\wrap.inl">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="res\shaders\Lighting.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Application.cpp">
