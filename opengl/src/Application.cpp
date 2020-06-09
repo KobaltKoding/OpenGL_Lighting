@@ -142,6 +142,20 @@ int main(void)
 		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f
 	};
 
+	glm::vec3 cubePositions[] = {
+		glm::vec3(0.0f,  0.0f,  0.0f),
+		glm::vec3(2.0f,  5.0f, -15.0f),
+		glm::vec3(-1.5f, -2.2f, -2.5f),
+		glm::vec3(-3.8f, -2.0f, -12.3f),
+		glm::vec3(2.4f, -0.4f, -3.5f),
+		glm::vec3(-1.7f,  3.0f, -7.5f),
+		glm::vec3(1.3f, -2.0f, -2.5f),
+		glm::vec3(1.5f,  2.0f, -2.5f),
+		glm::vec3(1.5f,  0.2f, -1.5f),
+		glm::vec3(-1.3f,  1.0f, -1.5f)
+	};
+
+
 
 	GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 	GLCall(glEnable(GL_BLEND));
@@ -167,13 +181,20 @@ int main(void)
 	Shader shader1("res/shaders/Lighting.shader");
 	
 	Texture texture("res/textures/container2.png",0);
-	texture.Bind(0);
+	
 	shader.SetUniform1i("material.diffuse", 0);
 
 	Texture texture1("res/textures/container2_specular.png",0);
-	texture.Bind(1);
+	
 	shader.SetUniform1i("material.specular", 1);
 
+	Texture texture2("res/textures/matrix.png", 0);
+	
+	shader.SetUniform1i("material.emission", 2);
+
+	texture.Bind(0);
+	texture1.Bind(1);
+	texture2.Bind(2);
 
 	va.Unbind();
 	vb.Unbind();
@@ -218,9 +239,9 @@ int main(void)
 		// world transformation
 		glm::mat4 model = glm::mat4(1.0f);
 
-		lightPos.x = sin(glfwGetTime()) * 2.0f;
-		lightPos.z = cos(glfwGetTime()) * 2.0f;
-		lightPos.y = 0;
+		//lightPos.x = sin(glfwGetTime()) * 2.0f;
+		//lightPos.z = cos(glfwGetTime()) * 2.0f;
+		//lightPos.y = 0;
 
 		shader.Bind();
 		shader.SetUniform3f("light.position", lightPos);
@@ -229,9 +250,9 @@ int main(void)
 		// light properties
 		glm::vec3 lightColor;
 
-		lightColor.x = 0.2;
-		lightColor.y =0.15;
-		lightColor.z = 0.65;
+		lightColor.x = 1.0;
+		lightColor.y = 1.0;
+		lightColor.z = 1.0;
 	
 		glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f); // decrease the influence
 		glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // low influence
@@ -244,6 +265,9 @@ int main(void)
 		//shader.SetUniform3f("material.diffuse", 1.0f, 0.5f, 0.31f);
 		//shader.SetUniform3f("material.specular", 0.5f, 0.5f, 0.5f); //specular lighting doesn't have full effect on this object's material
 		shader.SetUniform1f("material.shininess", 64.0f);
+		float offset = rand();
+		shader.SetUniform1f("time", offset * glfwGetTime() );
+
 
 		
 
@@ -251,15 +275,27 @@ int main(void)
 		shader.SetUniformMat4f("view", view);
 		shader.SetUniformMat4f("projection",projection);
 		//shader.SetUniformMat4f("u_MVP", mvp);
-		
-		
 
-		renderer.DrawArray(va, shader, 36);
+		for (unsigned int i = 0; i < 10; i++)
+		{
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, cubePositions[i]);
+			float angle = 25.0f * (i + 2) * (float)glfwGetTime();
+			model = glm::rotate(model, glm::radians(angle), glm::vec3(mul, 0.3f, 0.5f));
+			shader.SetUniformMat4f("model", model);
+			
+			shader.SetUniform1f("time", mul*i+2+glfwGetTime());
+
+			renderer.DrawArray(va, shader, 36);
+		}
+
+		//renderer.DrawArray(va, shader, 36);
 		
 
 
 
 		shader1.Bind();
+		
 
 		model = glm::mat4(1.0f);
 		model = glm::translate(model, lightPos);
@@ -267,8 +303,11 @@ int main(void)
 		shader1.SetUniformMat4f("u_Model", model);
 		shader1.SetUniformMat4f("u_View", view);
 		shader1.SetUniformMat4f("u_Projection", projection);
+		shader1.SetUniform3f("color", lightColor);
 		//shader1.SetUniform3f("color", lightColor);
 		
+
+
 		renderer.DrawArray(va, shader1, 36);
 
 		
