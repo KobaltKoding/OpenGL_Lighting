@@ -179,22 +179,25 @@ int main(void)
 	//shader.SetUniform4f("u_Color", 0.2f, 0.3f, 0.8f, 1.0f);
 
 	Shader shader1("res/shaders/Lighting.shader");
-	
+
+
 	Texture texture("res/textures/container2.png",0);
-	
 	shader.SetUniform1i("material.diffuse", 0);
 
+
 	Texture texture1("res/textures/container2_specular.png",0);
-	
 	shader.SetUniform1i("material.specular", 1);
 
 	Texture texture2("res/textures/matrix.png", 0);
-	
 	shader.SetUniform1i("material.emission", 2);
+
+	Texture texture3("res/textures/batman.png", 0);
+	shader.SetUniform1i("light.design", 3);
 
 	texture.Bind(0);
 	texture1.Bind(1);
-	texture2.Bind(2);
+	//texture2.Bind(2);
+	texture3.Bind(3);
 
 	va.Unbind();
 	vb.Unbind();
@@ -244,21 +247,30 @@ int main(void)
 		//lightPos.y = 0;
 
 		shader.Bind();
-		shader.SetUniform3f("light.position", lightPos);
+		shader.SetUniform3f("light.position", camera.Position);
+		shader.SetUniform3f("light.direction", camera.Front);
+		shader.SetUniform1f("light.cutOff", glm::cos(glm::radians(12.5f)));
+		shader.SetUniform1f("light.outerCutOff", glm::cos(glm::radians(15.5f)));
+
 		shader.SetUniform3f("viewPos", camera.Position);
 
 		// light properties
 		glm::vec3 lightColor;
 
-		lightColor.x = 1.0;
-		lightColor.y = 1.0;
-		lightColor.z = 1.0;
+		lightColor.r = 1.0;
+		lightColor.g = 1.0;
+		lightColor.b = 1.0;
 	
 		glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f); // decrease the influence
 		glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // low influence
-		shader.SetUniform3f("light.ambient", 0.2f, 0.2f, 0.2f);
-		shader.SetUniform3f("light.diffuse", 0.5f, 0.5f, 0.5f);
+		shader.SetUniform3f("light.ambient", 0.1f, 0.1f, 0.1f);
+		shader.SetUniform3f("light.diffuse", 0.8f, 0.8f, 0.8f);
 		shader.SetUniform3f("light.specular", 1.0f, 1.0f, 1.0f);
+
+		shader.SetUniform1f("light.constant", 1.0f);
+		shader.SetUniform1f("light.linear", 0.059f);
+		shader.SetUniform1f("light.quadratic", 0.0032f);
+
 
 		// material properties
 		//shader.SetUniform3f("material.ambient", 1.0f, 0.5f, 0.31f);
@@ -281,7 +293,7 @@ int main(void)
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, cubePositions[i]);
 			float angle = 25.0f * (i + 2) * (float)glfwGetTime();
-			model = glm::rotate(model, glm::radians(angle), glm::vec3(mul, 0.3f, 0.5f));
+			//model = glm::rotate(model, glm::radians(angle), glm::vec3(mul, 0.3f, 0.5f));
 			shader.SetUniformMat4f("model", model);
 			
 			shader.SetUniform1f("time", mul*i+2+glfwGetTime());
@@ -308,7 +320,7 @@ int main(void)
 		
 
 
-		renderer.DrawArray(va, shader1, 36);
+		//renderer.DrawArray(va, shader1, 36);
 
 		
 
