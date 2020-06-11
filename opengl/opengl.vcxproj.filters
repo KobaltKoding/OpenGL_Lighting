@@ -425,6 +425,7 @@
       <Filter>Header Files</Filter>
     </None>
     <None Include="res\shaders\Lighting.shader" />
+    <None Include="res\shaders\Basic1.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Application.cpp">
